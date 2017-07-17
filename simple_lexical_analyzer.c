@@ -68,6 +68,20 @@ void addToList (struct token *t)
   head = List_new (t, head);
 }
 
+struct token *Token_new(enum kind kind, char* temp, int len, int row, int column) {
+    struct token *t = malloc(sizeof(*t));
+    t->kind = kind;
+    if (len > 0) {
+        t->lexeme = malloc(sizeof(char)*(len));
+        memcpy(t->lexeme, temp, len);
+    } else {
+        t->lexeme = NULL;
+    }
+    t->row = row;
+    t->column = column - len;
+    return t;
+}
+
 void rollback() {
     if (!pFile) {
         perror("FILE do not be NULL");
@@ -78,15 +92,71 @@ void rollback() {
 
 char getChar() {
     char c;
-    fread(&c, sizeof(char), 1, pFile);
+    c = fgetc(pFile);
     return c;
 }
 
+/*
+ * define S1 = [a-hj-zA-Z_]
+ *        S2 = [a-zA-Z0-9_]
+ *        S3 = [a-eg-zA-Z0-9_]
+ *        S_other = [ \n]
+ *        S_num = [0-9]
+ */
+bool isS1(char c) {
+    if ((c >= 'a' && c <= 'h')
+            || (c >= 'j' && c <= 'z')
+            || (c >= 'A' && c <= 'Z')
+            || c == '_') {
+        return true;
+    } else {
+        return false;
+    }
+}
+
+bool isS2(char c) {
+    if ((c >= 'a' && c <= 'z')
+            || (c >= 'A' && c <= 'Z')
+            || (c >= '0' && c <= '9')
+            || c == '_') {
+        return true;
+    } else {
+        return false;
+    }
+}
+
+bool isS3(char c) {
+    if ((c >= 'a' && c <= 'e')
+            || (c >= 'g' && c <= 'z')
+            || (c >= 'A' && c <= 'Z')
+            || (c >= '0' && c <= '9')
+            || c == '_') {
+        return true;
+    } else {
+        return false;
+    }
+}
+
+bool isSother(char c) {
+    if (c == ' ' || c == '\n') {
+        return true;
+    } else {
+        return false;
+    }
+}
+
+bool isSnum(char c) {
+    if (c >= '0' && c <= '9') {
+        return true;
+    } else {
+        return false;
+    }
+}
 
 
 int main() {
     int row = 1;
-    int column = 0;
+    int column = 1;
     int len = 0;
     char temp[32];
     bool isNumber = false;
@@ -98,78 +168,95 @@ int main() {
     }
     char c;
     while ((c = getChar()) != EOF) {
-        if (c != ' ')
-            isBlank = false;
-        column ++;
+        if (c == ' ') {
+            column ++;
+            continue;
+        }
+        if (c == '\n') {
+            column = 1;
+            row ++;
+            continue;
+        }
         temp[len++] = c;
-        fgetpos(pFile, &position);
-        switch (c) {
-            case 'i':
-                c = getChar();
-                if (c == 'f') {
-                    c = getChar();
-                    if (c == ' ') {
-                        struct token *t = malloc(sizeof(*t));
-                        t->kind = IF;
-                        t->lexeme = NULL;
-                        t->row = row;
-                        t->column = column;
-                        column += 2;
-                        len = 0;
-                        addToList(t);
-                        isBlank = true;
-                    } else {
-                        rollback();
-                    }
-                } else {
+        column ++;
+        if (isS1(c)) {
+            fgetpos(pFile, &position);
+            column ++;
+            while ((c = getChar()) != EOF) {
+                if (isSother(c)) {
                     rollback();
-                }
-                break;
-            case '0':
-            case '1':
-            case '2':
-            case '3':
-            case '4':
-            case '5':
-            case '6':
-            case '7':
-            case '8':
-            case '9':
-                isNumber = true;
-                break;
-            case '\n':
-                row ++;
-                column = 0;
-            case ' ':
-                if (isNumber) {
-                    struct token *t = malloc(sizeof(*t));
-                    t->kind = NUM;
-                    t->lexeme = malloc(sizeof(char)*(len-1));
-                    memcpy(t->lexeme, temp, len-1);
-                    t->row = row;
-                    t->column = column;
-                    addToList(t);
+                    addToList(Token_new(ID, temp, len, row, column));
                     len = 0;
-                    isNumber = false;
+                    break;
                 }
-                if (!isBlank) {
-                    struct token *t = malloc(sizeof(*t));
-                    t->kind = ID;
-                    t->lexeme = malloc(sizeof(char)*(len-1));
-                    memcpy(t->lexeme, temp, len-1);
-                    t->row = row;
-                    t->column = column;
+                temp[len++] = c;
+                fgetpos(pFile, &position);
+                column ++;
+            }
+        } else if (c == 'i') {
+            fgetpos(pFile, &position);
+            c = getChar();
+            if (c == 'f') {
+                fgetpos(pFile, &position);
+                temp[len++] = c;
+                column ++;
+                c = getChar();
+                if (isSother(c)) {
+                    rollback();
+                    addToList(Token_new(IF, temp, len, row, column));
                     len = 0;
-                    addToList(t);
+                } else {
+                    temp[len++] = c;
+                    fgetpos(pFile, &position);
+                    column ++;
+                    while ((c = getChar()) != EOF) {
+                        if (isSother(c)) {
+                            rollback();
+                            addToList(Token_new(ID, temp, len, row, column));
+                            len = 0;
+                            break;
+                        }
+                        temp[len++] = c;
+                        fgetpos(pFile, &position);
+                        column ++;
+                    }
                 }
-                isBlank = true;
-                break;
-            default:
-                break;
+            } else if (isSother(c)) {
+                rollback();
+                addToList(Token_new(ID, temp, len, row, column));
+                len = 0;
+            } else {
+                temp[len++] = c;
+                fgetpos(pFile, &position);
+                column ++;
+                while ((c = getChar()) != EOF) {
+                    if (isSother(c)) {
+                        rollback();
+                        addToList(Token_new(ID, temp, len, row, column));
+                        len = 0;
+                        break;
+                    }
+                    temp[len++] = c;
+                    fgetpos(pFile, &position);
+                    column ++;
+                }
+            }
+        } else if (isSnum(c)) {
+            fgetpos(pFile, &position);
+            while ((c = getChar()) != EOF) {
+                if (isSother(c)) {
+                    rollback();
+                    addToList(Token_new(NUM, temp, len, row, column));
+                    len = 0;
+                    break;
+                }
+                temp[len++] = c;
+                fgetpos(pFile, &position);
+                column ++;
+            }
         }
     }
     List_reverse_print(head);
-
     return 0;
 }
 
