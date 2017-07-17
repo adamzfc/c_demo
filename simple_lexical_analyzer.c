@@ -44,7 +44,6 @@ void List_reverse_print (struct List_token *list)
     while(0 != list) {
         switch (list->t->kind){
         case ID:{
-        //struct STACK_ADD *p = (struct STACK_ADD *)list->instr;
         printf ("ID(%s)(%d,%d)\n", list->t->lexeme, list->t->row, list->t->column);
         break;
         }
