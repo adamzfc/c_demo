@@ -16,7 +16,9 @@
 
 
 %left '+'
+%left '-'
 %left '*'
+%left '/'
 
 %start program
 
@@ -28,6 +30,8 @@ program: exp {tree = $1;}
 exp: digit     {$$ = $1}
 | exp '+' exp  {$$ = Exp_Add_new ($1, $3);}
 | exp '*' exp  {$$ = Exp_Times_new ($1, $3);}
+| exp '-' exp  {$$ = Exp_Minus_new($1, $3);}
+| exp '/' exp  {$$ = Exp_Divide_new($1, $3);}
 ;
 
 digit: '0'  {$$ = Exp_Int_new (0);}

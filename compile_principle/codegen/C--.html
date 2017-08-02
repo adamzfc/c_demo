@@ -1,0 +1,81 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<!-- saved from url=(0049)http://staff.ustc.edu.cn/~bjhua/mooc/codegen.html -->
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=GBK">
+
+<title>C--</title>
+</head>
+<body>
+<font face="Trebuchet MS">
+<table width="100%">
+<tbody><tr>
+<td>
+<h3>C--语言的代码生成器</h3>
+在这个作业中，要求你给C--语言实现代码生成器，生成栈式计算机的指令代码。
+
+<h3>C--语言的语法</h3>
+C--语言的语法和上一次作业中的相同，为了方便引用，这里重复给出如下：
+
+<pre>prog   -&gt; { decs stms }
+decs   -&gt; dec decs
+        |
+dec    -&gt; type id ;
+type   -&gt; <b>int</b>
+        | <b>bool</b>
+stms   -&gt; stm stms
+        |
+stm    -&gt; id = exp ;
+        | <b>printi</b>(exp) ;
+        | <b>printb</b>(exp) ;
+exp    -&gt; intnum
+        | <b>true</b>
+        | <b>false</b>
+        | id
+        | (exp)
+        | exp + exp
+        | exp - exp
+        | exp * exp
+        | exp / exp
+        | exp &amp;&amp; exp
+        | exp || exp
+</pre>
+
+<h3>栈式计算机</h3>
+栈式计算机的指令见课程的讲义，需要特别指出的是，讲义中所给出的指令不足以编译C--，所以需要你自己设计并添加必须的指令。
+
+<h3>任务</h3>
+首先下载我们提供的代码框架：
+<p>
+<a href="http://staff.ustc.edu.cn/~bjhua/mooc/codegen.zip">http://staff.ustc.edu.cn/~bjhua/mooc/codegen.zip</a>
+</p><p>
+首先编译该代码：
+</p><pre>  $ make
+</pre>
+然后运行给定的测试例：
+<pre>  $ ./a.out &lt; test.txt
+</pre>
+
+<p>
+对给定的测试例，在屏幕上打印了所生成的栈计算机的代码；并且生成了名为stack.exe的可执行程序，如果运行该程序的话：
+</p><pre>  $ ./stack.exe
+</pre>
+将输出：
+<pre>  88
+  true
+</pre>
+
+<p>
+代码当中已经给出的是模块和任务是包括：
+</p><ol>
+<li> 栈计算机的数据结构定义模块：stack-machine.h.c。你的任务是根据自己的研究和判断，增加必要的新的指令（结合下面的任务2）；
+</li><li> 从C--编译到栈计算机的代码生成模块：gen-stack.h.c；你的任务是将这部分代码补充完整（TODO的部分）；
+</li><li> 从栈计算机编译到x86汇编代码并生成可执行文件的模块：stack2x86.h.c。（这部分是选做，不做统一要求。）
+</li></ol>
+
+</td>
+</tr>
+</tbody></table>
+
+</font>
+
+
+</body><div></div></html>

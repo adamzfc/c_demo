@@ -29,6 +29,24 @@ Exp_t Exp_Times_new (Exp_t left, Exp_t right)
   return (Exp_t)p;
 }
 
+Exp_t Exp_Minus_new (Exp_t left, Exp_t right)
+{
+  Exp_Add p = malloc (sizeof (*p));
+  p->kind = EXP_MINUS;
+  p->left = left;
+  p->right = right;
+  return (Exp_t)p;
+}
+
+Exp_t Exp_Divide_new (Exp_t left, Exp_t right)
+{
+  Exp_Add p = malloc (sizeof (*p));
+  p->kind = EXP_DIVIDE;
+  p->left = left;
+  p->right = right;
+  return (Exp_t)p;
+}
+
 // all operations on "Exp"
 void Exp_print (Exp_t exp)
 {
@@ -52,6 +70,24 @@ void Exp_print (Exp_t exp)
     printf ("(");
     Exp_print (p->left);
     printf (") + (");
+    Exp_print (p->right);
+    printf (")");
+    return;
+  }
+  case EXP_MINUS:{
+    Exp_Minus p = (Exp_Minus)exp;
+    printf ("(");
+    Exp_print (p->left);
+    printf (") - (");
+    Exp_print (p->right);
+    printf (")");
+    return;
+  }
+  case EXP_DIVIDE:{
+    Exp_Divide p = (Exp_Divide)exp;
+    printf ("(");
+    Exp_print (p->left);
+    printf (") / (");
     Exp_print (p->right);
     printf (")");
     return;
