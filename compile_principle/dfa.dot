@@ -1,0 +1,18 @@
+digraph{
+    q0
+    q1 [peripheries=2]
+    q2 [peripheries=2]
+    q3 [peripheries=2]
+    q4 [peripheries=2]
+
+    q0->q1 [label="a"]
+    q0->q2 [label="b"]
+    q1->q3 [label="c"]
+    q1->q4 [label="d"]
+    q2->q3 [label="c"]
+    q2->q4 [label="d"]
+    q3->q4 [label="d"]
+    q4->q3 [label="c"]
+    q3->q3 [label="c"]
+    q4->q4 [label="d"]
+}
