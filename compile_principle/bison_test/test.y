@@ -1,50 +1,54 @@
-
 %{
-    #include <stdio.h>
-    #include <stdlib.h>
-    int yylex();
-    void yyerror(char *);
+#include <stdio.h>
+#include <ctype.h>
+#include <stdlib.h>
+ 
+int yylex();
+void yyerror(const char *s);
 %}
+ 
+%token DIGIT
+ 
 %left '+' '-'
 %left '*' '/'
+ 
 %%
-
-lines: line
-     | line lines
-;
-
-line: exp '\n' {printf("value=%d\n", $1);}
-;
-
-exp: num         {$$=$1;}
-   | exp '+' exp {$$=$1+$3;}
-   | exp '-' exp {$$=$1-$3;}
-   | exp '*' exp {$$=$1*$3;}
-   | exp '/' exp {$$=$1/$3;}
-   | '(' exp ')' {$$=($2);}
-;
-
-num: n
-   | num n
-
-n: '1'  {$$=1;}
- | '2'  {$$=2;}
- | '3'  {$$=3;}
- | '4'  {$$=4;}
- | '5'  {$$=5;}
- | '6' | '7' | '8' | '9' | '0';
-
+ 
+lines   :   lines line
+    |   line
+    ;
+ 
+line    :   expr '\n'  { printf("%d\n", $1); }
+    ;
+ 
+expr    :   number      { $$ = $1; }
+    |   expr '+' expr { $$ = $1 + $3; }
+    |  expr '-' expr { $$ = $1 - $3; }
+    |   expr '*' expr { $$ = $1 * $3; }
+    |   expr '/' expr { $$ = $1 / $3; }
+    |  '(' expr ')'  { $$ = $2; }
+    ;
+ 
+number  :   number DIGIT   { $$ = $1 * 10 + $2; }
+    |   DIGIT       { $$ = $1; }
+    ;
+ 
 %%
-
+ 
 int yylex() {
-    return getchar();
+    int c = getchar();
+    if(isdigit(c)) {
+        yylval = c - '0';
+        return DIGIT;
+    }
+ 
+    return c;
 }
-
-void yyerror(char *s) {
+ 
+void yyerror(const char *s) {
     fprintf(stderr, "%s\n", s);
-    return;
 }
-
+ 
 int main(int argc, char **argv) {
     yyparse();
     return 0;
