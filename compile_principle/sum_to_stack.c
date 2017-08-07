@@ -121,35 +121,44 @@ struct List_t *List_new (struct Stack_t *instr, struct List_t *next)
 }
 
 // "printer"
+/* void List_reverse_print (struct List_t *list) */
+/* { */
+    /* struct List_t *prev = 0; */
+    /* struct List_t *next; */
+    /* while (list != 0) { */
+        /* next = list->next; */
+        /* list->next = prev; */
+        /* prev = list; */
+        /* list = next; */
+    /* } */
+    /* list = prev; */
+    /* printf("\n"); */
+    /* while(0 != list) { */
+        /* switch (list->instr->kind){ */
+        /* case STACK_ADD:{ */
+        /* //struct STACK_ADD *p = (struct STACK_ADD *)list->instr; */
+        /* printf ("add\n"); */
+        /* break; */
+        /* } */
+        /* case STACK_PUSH:{ */
+        /* struct Stack_Push *p = (struct Stack_Push *)list->instr; */
+        /* printf ("push %d\n", p->i); */
+        /* break; */
+        /* } */
+        /* default: */
+        /* break; */
+        /* } */
+        /* list = list->next; */
+    /* } */
+/* } */
 void List_reverse_print (struct List_t *list)
 {
-    struct List_t *prev = 0;
-    struct List_t *next;
-    while (list != 0) {
-        next = list->next;
-        list->next = prev;
-        prev = list;
-        list = next;
-    }
-    list = prev;
-    printf("\n");
-    while(0 != list) {
-        switch (list->instr->kind){
-        case STACK_ADD:{
-        //struct STACK_ADD *p = (struct STACK_ADD *)list->instr;
-        printf ("add\n");
-        break;
-        }
-        case STACK_PUSH:{
-        struct Stack_Push *p = (struct Stack_Push *)list->instr;
-        printf ("push %d\n", p->i);
-        break;
-        }
-        default:
-        break;
-        }
-        list = list->next;
-    }
+  if(list->next != NULL)
+    List_reverse_print(list->next);
+  if(list->instr->kind == STACK_ADD)
+      printf("\nADD");
+   else
+      printf("\nPUSH %d",((struct Stack_Push *)(list->instr))->i);
 }
 
 //////////////////////////////////////////////////
